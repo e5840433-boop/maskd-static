@@ -218,15 +218,16 @@ const bot = p.get('bot') || 'tbh_anon_bot';
 const link = `https://t.me/${bot}?start=${uid}_${topic}`;
 
 // Темы — иконки и тексты
+const STORY_IMG = 'https://i.ibb.co/Ldpxk9z3/Chat-GPT-Image-19-2026-23-07-16.png';
 const topics = {
-    default:  { icon: '💌', title: 'Отправь мне анонимное сообщение' },
-    confess:  { icon: '🫶', title: 'Признайся мне анонимно' },
-    describe: { icon: '✍️', title: 'Опиши меня тремя словами' },
-    nhie:     { icon: '🙈', title: 'Никогда я не...' },
-    ship:     { icon: '💘', title: 'С кем ты меня шипиришь?' },
-    change:   { icon: '🤔', title: 'Что бы ты изменил во мне, если бы мог?' },
-    crush:    { icon: '😍', title: 'Кто твоя тайная симпатия?' },
-    truth:    { icon: '😈', title: 'Скажи мне правду, которую боишься говорить в лицо' },
+    default:  { icon: '💌', title: 'Отправь мне анонимное сообщение', img: 'https://i.ibb.co/Ldpxk9z3/Chat-GPT-Image-19-2026-23-07-16.png' },
+    confess:  { icon: '🫶', title: 'Признайся мне анонимно',           img: 'https://i.ibb.co/rGynp0vh/Chat-GPT-Image-19-2026-23-09-30.png' },
+    describe: { icon: '✍️', title: 'Опиши меня тремя словами',         img: STORY_IMG },
+    nhie:     { icon: '🙈', title: 'Никогда я не...',                   img: STORY_IMG },
+    ship:     { icon: '💘', title: 'С кем ты меня шипиришь?',          img: STORY_IMG },
+    change:   { icon: '🤔', title: 'Что бы ты изменил во мне, если бы мог?', img: STORY_IMG },
+    crush:    { icon: '😍', title: 'Кто твоя тайная симпатия?',        img: STORY_IMG },
+    truth:    { icon: '😈', title: 'Скажи мне правду, которую боишься говорить в лицо', img: STORY_IMG },
 };
 
 const t = topics[topic] || topics.default;
@@ -234,106 +235,6 @@ document.getElementById('icon').textContent = t.icon;
 document.getElementById('topicLabel').textContent = 'Maskd';
 document.getElementById('title').textContent = `${t.icon} ${t.title}`;
 document.getElementById('shareBtn').querySelector('span').textContent = `📤 Поделиться историей`;
-
-// Генерация картинки для Stories
-function buildStoryImage() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1920;
-    const ctx = canvas.getContext('2d');
-
-    // Фон
-    const bg = ctx.createLinearGradient(0, 0, 1080, 1920);
-    bg.addColorStop(0, '#0f0720');
-    bg.addColorStop(0.5, '#1e0a3c');
-    bg.addColorStop(1, '#2d0a1e');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // Цветные blobs
-    function drawBlob(x, y, r, color, alpha) {
-        const rg = ctx.createRadialGradient(x, y, 0, x, y, r);
-        rg.addColorStop(0, color.replace(')', `,${alpha})`).replace('rgb', 'rgba'));
-        rg.addColorStop(1, color.replace(')', ',0)').replace('rgb', 'rgba'));
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = rg;
-        ctx.fill();
-    }
-
-    drawBlob(200, 400, 500, 'rgb(124,58,237)', 0.6);
-    drawBlob(900, 1500, 450, 'rgb(236,72,153)', 0.55);
-    drawBlob(540, 960, 300, 'rgb(245,158,11)', 0.2);
-
-    // Карточка
-    const cx = 540, cy = 960;
-    const cw = 860, ch = 680;
-    const rx = 60;
-
-    ctx.save();
-    roundRect(ctx, cx - cw/2, cy - ch/2, cw, ch, rx);
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-
-    // Иконка
-    ctx.font = '160px serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#fff';
-    ctx.fillText(t.icon, cx, cy - 160);
-
-    // Градиентный лейбл — название продукта
-    const gLabel = ctx.createLinearGradient(cx - 200, 0, cx + 200, 0);
-    gLabel.addColorStop(0, '#a78bfa');
-    gLabel.addColorStop(1, '#f472b6');
-    ctx.fillStyle = gLabel;
-    ctx.font = 'bold 56px sans-serif';
-    ctx.fillText('Maskd', cx, cy - 30);
-
-    // Заголовок — полный текст темы с переносом
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 76px sans-serif';
-    const words = t.title.split(' ');
-    const maxW = 820;
-    let line = '', lines = [];
-    for (const word of words) {
-        const test = line ? line + ' ' + word : word;
-        if (ctx.measureText(test).width > maxW && line) {
-            lines.push(line);
-            line = word;
-        } else {
-            line = test;
-        }
-    }
-    if (line) lines.push(line);
-    const lineH = 95;
-    const startY = cy + 80 - ((lines.length - 1) * lineH) / 2;
-    lines.forEach((l, i) => ctx.fillText(l, cx, startY + i * lineH));
-
-    // Подпись
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.font = '52px sans-serif';
-    ctx.fillText('Нажми на ссылку ниже 👇', cx, cy + 390);
-
-    return canvas.toDataURL('image/jpeg', 0.93);
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-}
 
 function share() {
     if (!tg.shareToStory) {
@@ -345,8 +246,7 @@ function share() {
     btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
     btn.disabled = true;
 
-    const dataUrl = buildStoryImage();
-    tg.shareToStory(dataUrl, {
+    tg.shareToStory(t.img, {
         text: `Скажи мне то, что боишься сказать в лицо 👇\n${link}`
     });
     setTimeout(() => {
