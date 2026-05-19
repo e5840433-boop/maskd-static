@@ -235,8 +235,6 @@ document.getElementById('topicLabel').textContent = 'Maskd';
 document.getElementById('title').textContent = `${t.icon} ${t.title}`;
 document.getElementById('shareBtn').querySelector('span').textContent = `📤 Поделиться историей`;
 
-tg.onEvent('web_app_ready', share);
-
 function share() {
     if (!tg.shareToStory) {
         tg.showAlert('Обновите Telegram до последней версии, чтобы поделиться в Stories.');
@@ -255,6 +253,8 @@ function share() {
         btn.disabled = false;
     }, 2000);
 }
+
+share();
 </script>
 </body>
 </html>
