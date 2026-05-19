@@ -236,7 +236,7 @@ document.getElementById('title').textContent = `${t.icon} ${t.title}`;
 document.getElementById('shareBtn').querySelector('span').textContent = `📤 Поделиться историей`;
 
 // Генерация картинки для Stories
-function buildStoryImage(cb) {
+function buildStoryImage() {
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1920;
@@ -318,7 +318,7 @@ function buildStoryImage(cb) {
     ctx.font = '52px sans-serif';
     ctx.fillText('Нажми на ссылку ниже 👇', cx, cy + 390);
 
-    canvas.toBlob(cb, 'image/jpeg', 0.93);
+    return canvas.toDataURL('image/jpeg', 0.93);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -345,15 +345,14 @@ function share() {
     btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
     btn.disabled = true;
 
-    buildStoryImage(blob => {
-        tg.shareToStory(URL.createObjectURL(blob), {
-            text: `Скажи мне то, что боишься сказать в лицо 👇\n${link}`
-        });
-        setTimeout(() => {
-            btn.innerHTML = `<div class="shimmer"></div><span>${t.icon} Поделиться историей</span>`;
-            btn.disabled = false;
-        }, 2000);
+    const dataUrl = buildStoryImage();
+    tg.shareToStory(dataUrl, {
+        text: `Скажи мне то, что боишься сказать в лицо 👇\n${link}`
     });
+    setTimeout(() => {
+        btn.innerHTML = `<div class="shimmer"></div><span>${t.icon} Поделиться историей</span>`;
+        btn.disabled = false;
+    }, 2000);
 }
 </script>
 </body>
