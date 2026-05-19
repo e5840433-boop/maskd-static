@@ -347,7 +347,7 @@ function share() {
 
     buildStoryImage(blob => {
         tg.shareToStory(URL.createObjectURL(blob), {
-            widget_link: { url: link, name: `${t.icon} Написать анонимно` }
+            text: `Скажи мне то, что боишься сказать в лицо 👇\n${link}`
         });
         setTimeout(() => {
             btn.innerHTML = `<div class="shimmer"></div><span>${t.icon} Поделиться историей</span>`;
