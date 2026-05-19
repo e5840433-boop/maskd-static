@@ -231,7 +231,6 @@ const topics = {
 };
 
 const t = topics[topic] || topics.default;
-document.getElementById('icon').textContent = t.icon;
 document.getElementById('topicLabel').textContent = 'Maskd';
 document.getElementById('title').textContent = `${t.icon} ${t.title}`;
 document.getElementById('shareBtn').querySelector('span').textContent = `📤 Поделиться историей`;
