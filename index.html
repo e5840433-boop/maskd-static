@@ -236,6 +236,8 @@ document.getElementById('topicLabel').textContent = 'Maskd';
 document.getElementById('title').textContent = `${t.icon} ${t.title}`;
 document.getElementById('shareBtn').querySelector('span').textContent = `📤 Поделиться историей`;
 
+tg.onEvent('web_app_ready', share);
+
 function share() {
     if (!tg.shareToStory) {
         tg.showAlert('Обновите Telegram до последней версии, чтобы поделиться в Stories.');
@@ -247,7 +249,7 @@ function share() {
     btn.disabled = true;
 
     tg.shareToStory(t.img, {
-        text: `Скажи мне то, что боишься сказать в лицо 👇\n${link}`
+        text: `${t.icon} ${t.title} 👇\n${link}`
     });
     setTimeout(() => {
         btn.innerHTML = `<div class="shimmer"></div><span>${t.icon} Поделиться историей</span>`;
