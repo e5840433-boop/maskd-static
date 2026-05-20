@@ -185,6 +185,48 @@
             0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
             40%          { transform: scale(1); opacity: 1; }
         }
+
+        .question-box {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+            text-align: left;
+            animation: fadeUp 0.5s ease 0.35s both;
+        }
+
+        .question-box .question-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 6px;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            margin-bottom: 16px;
+            min-height: 100px;
+            box-sizing: border-box;
+            animation: fadeUp 0.5s ease 0.4s both;
+        }
+
+        .reply-textarea::placeholder { color: rgba(255,255,255,0.3); }
+        .reply-textarea:focus { border-color: rgba(167,139,250,0.5); }
     </style>
 </head>
 <body>
@@ -197,7 +239,12 @@
     <div class="icon-wrap" id="icon">💌</div>
     <div class="topic-label" id="topicLabel">Maskd</div>
     <h1 class="title" id="title">💌 Отправь мне анонимное сообщение</h1>
-    <p class="subtitle">Делитесь своей ссылкой — получайте сообщения от своих друзей и незнакомцев</p>
+    <div class="question-box" id="questionBox" style="display:none">
+        <div class="question-label">Анонимное сообщение</div>
+        <div id="questionText"></div>
+    </div>
+    <p class="subtitle" id="subtitle">Делитесь своей ссылкой — получайте сообщения от своих друзей и незнакомцев</p>
+    <textarea class="reply-textarea" id="replyTextarea" placeholder="Напиши что-нибудь для сторис..." style="display:none"></textarea>
     <button class="btn" id="shareBtn" onclick="share()">
         <div class="shimmer"></div>
         <span>💌 Поделиться историей</span>
@@ -215,25 +262,43 @@ const p = new URLSearchParams(window.location.search);
 const topic = p.get('topic') || 'default';
 const uid = p.get('uid') || '';
 const bot = p.get('bot') || 'tbh_anon_bot';
+const mode = p.get('mode') || '';
+const question = p.get('question') || '';
 const link = `https://t.me/${bot}?start=${uid}_${topic}`;
 
-// Темы — иконки и тексты
-const STORY_IMG = 'https://i.ibb.co/Ldpxk9z3/Chat-GPT-Image-19-2026-23-07-16.png';
+const REPLY_IMG = 'https://i.ibb.co/3YTLXFW7/Gemini-Generated-Image-t6e674t6e674t6e6.png';
+
 const topics = {
     default:  { icon: '💌', title: 'Отправь мне анонимное сообщение', img: 'https://i.ibb.co/Ldpxk9z3/Chat-GPT-Image-19-2026-23-07-16.png' },
     confess:  { icon: '🫶', title: 'Признайся мне анонимно',           img: 'https://i.ibb.co/rGynp0vh/Chat-GPT-Image-19-2026-23-09-30.png' },
-    describe: { icon: '✍️', title: 'Опиши меня тремя словами',         img: STORY_IMG },
-    nhie:     { icon: '🙈', title: 'Никогда я не...',                   img: STORY_IMG },
-    ship:     { icon: '💘', title: 'С кем ты меня шипиришь?',          img: STORY_IMG },
-    change:   { icon: '🤔', title: 'Что бы ты изменил во мне, если бы мог?', img: STORY_IMG },
-    crush:    { icon: '😍', title: 'Кто твоя тайная симпатия?',        img: STORY_IMG },
-    truth:    { icon: '😈', title: 'Скажи мне правду, которую боишься говорить в лицо', img: STORY_IMG },
+    describe: { icon: '✍️', title: 'Опиши меня тремя словами',         img: 'https://i.ibb.co/pjJvZ8Tg/Gemini-Generated-Image-jfasazjfasazjfas.png' },
+    nhie:     { icon: '🙈', title: 'Никогда я не...',                   img: 'https://i.ibb.co/PsKhzvsz/Gemini-Generated-Image-85au1u85au1u85au.png' },
+    ship:     { icon: '💘', title: 'С кем ты меня шипиришь?',          img: 'https://i.ibb.co/QFqgCdCQ/Gemini-Generated-Image-unuklgunuklgunuk.png' },
+    change:   { icon: '🤔', title: 'Что бы ты изменил во мне, если бы мог?', img: 'https://i.ibb.co/3VkFGFR/Gemini-Generated-Image-emxbewemxbewemxb.png' },
+    crush:    { icon: '😍', title: 'Кто твоя тайная симпатия?',        img: 'https://i.ibb.co/1YfTHBgL/Gemini-Generated-Image-mzlqo4mzlqo4mzlq.png' },
+    truth:    { icon: '😈', title: 'Скажи мне правду, которую боишься говорить в лицо', img: 'https://i.ibb.co/XZpYCcY2/Gemini-Generated-Image-hzfq5shzfq5shzfq.png' },
 };
 
 const t = topics[topic] || topics.default;
+const isReply = mode === 'reply';
+
 document.getElementById('topicLabel').textContent = 'Maskd';
-document.getElementById('title').textContent = `${t.icon} ${t.title}`;
-document.getElementById('shareBtn').querySelector('span').textContent = `📤 Поделиться историей`;
+
+if (isReply) {
+    document.getElementById('icon').textContent = '💬';
+    document.getElementById('title').textContent = 'Ответить в сторис';
+    document.getElementById('subtitle').style.display = 'none';
+    document.getElementById('shareBtn').querySelector('span').textContent = '💬 Поделиться ответом';
+
+    if (question) {
+        document.getElementById('questionBox').style.display = 'block';
+        document.getElementById('questionText').textContent = question;
+    }
+    document.getElementById('replyTextarea').style.display = 'block';
+} else {
+    document.getElementById('title').textContent = `${t.icon} ${t.title}`;
+    document.getElementById('shareBtn').querySelector('span').textContent = '📤 Поделиться историей';
+}
 
 function share() {
     if (!tg.shareToStory) {
@@ -245,16 +310,23 @@ function share() {
     btn.innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
     btn.disabled = true;
 
-    tg.shareToStory(t.img, {
-        text: `${t.icon} ${t.title} 👇\n${link}`
-    });
+    let storyText;
+    if (isReply) {
+        const typed = document.getElementById('replyTextarea').value.trim();
+        storyText = typed ? `${typed}\n\n${link}` : `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
+    } else {
+        storyText = `${t.icon} ${t.title} 👇\n${link}`;
+    }
+
+    tg.shareToStory(isReply ? REPLY_IMG : t.img, { text: storyText });
     setTimeout(() => {
-        btn.innerHTML = `<div class="shimmer"></div><span>${t.icon} Поделиться историей</span>`;
+        const label = isReply ? '💬 Поделиться ответом' : `${t.icon} Поделиться историей`;
+        btn.innerHTML = `<div class="shimmer"></div><span>${label}</span>`;
         btn.disabled = false;
     }, 2000);
 }
 
-share();
+if (!isReply) share();
 </script>
 </body>
 </html>
