@@ -313,7 +313,12 @@ function share() {
     let storyText;
     if (isReply) {
         const typed = document.getElementById('replyTextarea').value.trim();
-        storyText = typed ? `${typed}\n\n${link}` : `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
+        if (typed) {
+            const q = question ? `❓ ${question}\n\n💬 ${typed}` : typed;
+            storyText = `${q}\n\n${link}`;
+        } else {
+            storyText = `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
+        }
     } else {
         storyText = `${t.icon} ${t.title} 👇\n${link}`;
     }
