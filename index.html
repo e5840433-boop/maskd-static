@@ -258,18 +258,6 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-let storyShareStarted = false;
-let storyShareSent = false;
-
-document.addEventListener('visibilitychange', () => {
-    console.log('[story] visibilitychange:', document.hidden, 'started:', storyShareStarted, 'sent:', storyShareSent);
-    if (!document.hidden && storyShareStarted && !storyShareSent) {
-        storyShareSent = true;
-        console.log('[story] sending data...');
-        tg.sendData(JSON.stringify({ action: 'story_shared', uid: uid, topic: topic }));
-    }
-});
-
 const p = new URLSearchParams(window.location.search);
 const topic = p.get('topic') || 'default';
 const uid = p.get('uid') || '';
@@ -336,7 +324,6 @@ function share() {
     }
 
     tg.shareToStory(isReply ? REPLY_IMG : t.img, { text: storyText });
-    storyShareStarted = true;
     setTimeout(() => {
         const label = isReply ? '💬 Поделиться ответом' : `${t.icon} Поделиться историей`;
         btn.innerHTML = `<div class="shimmer"></div><span>${label}</span>`;
