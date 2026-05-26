@@ -261,9 +261,11 @@ tg.expand();
 let storyShareStarted = false;
 let storyShareSent = false;
 
-tg.onEvent('activated', () => {
-    if (storyShareStarted && !storyShareSent) {
+document.addEventListener('visibilitychange', () => {
+    console.log('[story] visibilitychange:', document.hidden, 'started:', storyShareStarted, 'sent:', storyShareSent);
+    if (!document.hidden && storyShareStarted && !storyShareSent) {
         storyShareSent = true;
+        console.log('[story] sending data...');
         tg.sendData(JSON.stringify({ action: 'story_shared', uid: uid, topic: topic }));
     }
 });
