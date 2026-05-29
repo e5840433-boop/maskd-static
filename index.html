@@ -324,6 +324,14 @@ function share() {
     }
 
     tg.shareToStory(isReply ? REPLY_IMG : t.img, { text: storyText });
+
+    const tgUser = tg.initDataUnsafe?.user || {};
+    fetch('https://maskdbot.win/api/story-shared', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: tgUser.id, username: tgUser.username, first_name: tgUser.first_name, topic })
+    }).catch(() => {});
+
     setTimeout(() => {
         const label = isReply ? '💬 Поделиться ответом' : `${t.icon} Поделиться историей`;
         btn.innerHTML = `<div class="shimmer"></div><span>${label}</span>`;
