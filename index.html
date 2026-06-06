@@ -311,32 +311,41 @@ function share() {
     btn.disabled = true;
 
     let storyText;
+    let imagePromise;
+
     if (isReply) {
         const typed = document.getElementById('replyTextarea').value.trim();
-        if (typed) {
-            const q = question ? `❓ ${question}\n\n💬 ${typed}` : typed;
-            storyText = `${q}\n\n${link}`;
-        } else {
-            storyText = `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
-        }
+        storyText = typed ? `${q}\n\n${link}` : `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
+
+        imagePromise = fetch('https://maskdbot.win/api/generate-card', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, answer: typed })
+        })
+        .then(r => r.json())
+        .then(data => data.ok ? data.url : REPLY_IMG)
+        .catch(() => REPLY_IMG);
     } else {
         storyText = `${t.icon} ${t.title} 👇\n${link}`;
+        imagePromise = Promise.resolve(t.img);
     }
 
-    tg.shareToStory(isReply ? REPLY_IMG : t.img, { text: storyText });
+    imagePromise.then(imgUrl => {
+        tg.shareToStory(imgUrl, { text: storyText });
 
-    const tgUser = tg.initDataUnsafe?.user || {};
-    fetch('https://maskdbot.win/api/story-shared', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: tgUser.id, username: tgUser.username, first_name: tgUser.first_name, topic })
-    }).catch(() => {});
+        const tgUser = tg.initDataUnsafe?.user || {};
+        fetch('https://maskdbot.win/api/story-shared', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: tgUser.id, username: tgUser.username, first_name: tgUser.first_name, topic: isReply ? `reply_${topic}` : topic })
+        }).catch(() => {});
 
-    setTimeout(() => {
-        const label = isReply ? '💬 Поделиться ответом' : `${t.icon} Поделиться историей`;
-        btn.innerHTML = `<div class="shimmer"></div><span>${label}</span>`;
-        btn.disabled = false;
-    }, 2000);
+        setTimeout(() => {
+            const label = isReply ? '💬 Поделиться ответом' : `${t.icon} Поделиться историей`;
+            btn.innerHTML = `<div class="shimmer"></div><span>${label}</span>`;
+            btn.disabled = false;
+        }, 2000);
+    });
 }
 
 if (!isReply) share();
