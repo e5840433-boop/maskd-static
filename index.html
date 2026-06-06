@@ -316,7 +316,7 @@ function share() {
     if (isReply) {
         const typed = document.getElementById('replyTextarea').value.trim();
         const q = question ? `❓ ${question}\n\n💬 ${typed}` : typed;
-        storyText = typed ? `${q}\n\n${link}` : `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
+        storyText = typed ? `${q}\n\nМне написали анонимно! Напиши мне тоже 👇\n${link}` : `Мне написали анонимно! Напиши мне тоже 👇\n${link}`;
 
         imagePromise = fetch('https://maskdbot.win/api/generate-card', {
             method: 'POST',
